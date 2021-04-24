@@ -1,0 +1,230 @@
+#include <iostream>
+#include <vector>
+#include <time.h>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fstream>
+
+using namespace std;
+
+//===============================================================
+struct Dados
+{
+	vector <string> palavras;
+	vector <string> espacos;
+	char *spc; 
+	int conta_vez;
+} dados;
+
+struct Dados *pt = &dados;
+int cont = 0;
+
+
+//===========================================================
+void desenho_forca(int opt)
+{
+	switch(opt)
+	{
+		case 0:
+			cout << "  ________\n";
+			cout << "  |\n";
+			cout << "  |\n";
+			cout << "  |\n";
+			cout << "  |\n";
+			cout << "-----\n";
+		break;
+		case 1:
+			cout << "  ________\n";
+			cout << "  |      0\n";
+			cout << "  |\n";
+			cout << "  |\n";
+			cout << "  |\n";
+			cout << "-----\n";
+		break;
+		
+		case 2:
+			cout << "  ________\n";
+			cout << "  |      0\n";
+			cout << "  |      |\n";
+			cout << "  |\n";
+			cout << "  |\n";
+			cout << "-----\n";
+		break;
+		
+		case 3:
+			cout << "  ________\n";
+			cout << "  |      0\n";
+			cout << "  |      |\\\n";
+			cout << "  |\n";
+			cout << "  |\n";
+			cout << "-----\n";
+		
+		break;
+		case 4:
+			cout << "  ________\n";
+			cout << "  |      0\n";
+			cout << "  |     /|\\\n";
+			cout << "  |\n";
+			cout << "  |\n";
+			cout << "-----\n";
+		break;
+		case 5:
+			cout << "  ________\n";
+			cout << "  |      0\n";
+			cout << "  |     /|\\\n";
+			cout << "  |       \\\n";
+			cout << "  |\n";
+			cout << "-----\n";
+		break;
+		case 6:
+			cout << "  ________\n";
+			cout << "  |      0\n";
+			cout << "  |     /|\\\n";
+			cout << "  |     / \\\n";
+			cout << "  |\n";
+			cout << "-----\n";
+		break;
+	}
+}
+
+//===========================================================
+string sorteia_palavra()
+{
+	string linha;
+  	ifstream arquivo ("arquivo.txt"); 
+  	
+  	if (arquivo.is_open())
+  	{
+    	while (! arquivo.eof() ) 
+    	{
+      		getline (arquivo,linha); 
+                             
+      		pt->palavras.push_back(linha);
+    	}
+    	arquivo.close();
+  	}
+
+  	else cout << "nao conseguiu abrir o arquivo"; 
+    
+	srand(time(NULL));
+	string palavra = pt -> palavras[rand() % pt -> palavras.size()];
+	
+	return palavra;
+}
+
+
+//=============================================================
+void preecha_espacos()
+{
+	pt->spc = (char *) malloc(pt->espacos.size() * sizeof(char));
+	for(int i = 0; i < sorteia_palavra().size();i++)
+	{
+		pt -> espacos.push_back(" _ ");
+		pt->spc[i] = '_';
+	}
+}
+
+
+//===============================================================
+void mostra_tela()
+{
+	cout << "A palavra eh ";
+	for(int i = 0; i < pt->espacos.size();i++)
+	{
+		cout << pt->espacos[i];
+	}
+	cout << "\n";
+}
+
+
+//===============================================================
+void forca(string palavra)
+{
+
+	char letra_digitada[24];
+	char letra;
+	char *p;
+	
+	while(true)
+	{
+		mostra_tela();
+		cout << " Digite uma letra: ";
+		cin  >>letra;
+		if(!(strchr(letra_digitada,letra)))
+		{
+			letra_digitada[cont] = letra;
+			cont++;
+			break;
+		}
+		
+		cout << "Letra [ " << letra <<" ] ja foi digita\n";
+		
+	}
+	
+	int contador = 0;
+	p = (char *)palavra.data();
+	
+	if(strchr(p,letra) == NULL)
+	{
+		pt->conta_vez++;
+		
+	}
+		
+	cout << "\n";
+	for(int i = 0;i < palavra.size();i++)
+	{
+		if(palavra[i] == letra)
+		{
+			pt ->  spc[i] = letra;
+			pt -> espacos[i] = letra;
+		}
+	}
+	system("cls");
+
+}
+
+
+//===============================================================
+bool ganhei()
+{
+	
+	if(strchr(pt->spc,'_') == NULL)
+	{
+		return true;
+	}
+	return false;
+}
+
+
+//===============================================================
+int main(int argc, char** argv) {
+	
+	string palavra = sorteia_palavra();
+	preecha_espacos();
+	
+	pt->conta_vez = 0;
+	
+	while(true)
+   	{
+   		desenho_forca(pt->conta_vez);
+		forca(palavra);
+   		if(pt->conta_vez == 6)
+		{	
+			desenho_forca(pt->conta_vez);
+			cout <<"Voce PERDEU\n A palavra era " << palavra;
+   			break;
+		}
+		
+		if(ganhei())
+		{
+			desenho_forca(pt->conta_vez);
+			cout << "Voce GANHOU\n A palavra eh " << palavra ;
+			break;	
+		}
+	}
+	
+	cout << "\n";
+	
+	return 0;
+}
